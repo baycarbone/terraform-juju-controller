@@ -21,11 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: "go.mod"
-          cache: true
-
       # Set up LXD and bootstrap a throw-away Juju controller so that
       # the Juju client has LXD certificate credentials stored locally.
       - name: Setup LXD and Juju
@@ -40,9 +35,6 @@ jobs:
       # into ~/lxd-credentials.yaml for use by the module.
       - name: Create LXD credentials file
         run: ./tools/create_lxd_config.sh
-
-      - name: Build and install provider
-        run: make install
 
       - uses: hashicorp/setup-terraform@v3
         with:
