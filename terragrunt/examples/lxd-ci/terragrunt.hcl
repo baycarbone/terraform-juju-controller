@@ -1,5 +1,5 @@
 terraform {
-  source = "${get_repo_root()}/modules/juju_bootstrap"
+  source = "${get_repo_root()}"
 }
 
 locals {

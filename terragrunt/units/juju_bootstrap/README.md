@@ -1,8 +1,11 @@
 # juju_bootstrap Terragrunt unit
 
-This unit wraps the `modules/juju_bootstrap` Terraform module for use from a Terragrunt stack.
+This unit wraps the root Terraform module for use from a Terragrunt stack.
 
-This definition expects to be used from within an stack. The enclosing stack is meant to provide a `values` attribute, which is used to populate the module source version, dependencies, required inputs, and any optional inputs.
+Default source: `juju/juju-controller/juju` (Terraform Registry).
+The `examples/lxd-ci` example overrides this with `${get_repo_root()}` for CI testing against the local module.
+
+The enclosing stack is meant to provide a `values` attribute, which is used to populate the module source version, dependencies, required inputs, and any optional inputs.
 
 ## Expected stack-provided values
 
@@ -37,4 +40,4 @@ Optional `values` entries:
 
 ## Reference
 
-For the definition of the forwarded inputs and module outputs, see `modules/juju_bootstrap/README.md`.
+For the definition of the forwarded inputs and module outputs, see the root `README.md`.
