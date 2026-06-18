@@ -2,29 +2,41 @@
 
 Terraform module and Terragrunt unit to bootstrap a [Juju](https://juju.is) controller.
 
+## What it does
+
+- Configures the `juju` provider in `controller_mode`.
+- Creates a `juju_controller` resource with configurable cloud, credential, and bootstrap settings.
+- Optionally runs `juju enable-ha` using a `local-exec` provisioner when `controller_num_units > 1`.
+
 ## Layout
 
 ```
-modules/juju_bootstrap            # Terraform module that bootstraps a Juju controller
-terragrunt/units/juju_bootstrap   # Terragrunt unit wrapping the module (used from a stack)
-terragrunt/examples/lxd-ci        # Working LXD example exercised by CI
+.                                  # Root module (primary entrypoint)
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── versions.tf
+├── terragrunt/
+│   ├── units/juju_bootstrap/      # Terragrunt unit wrapping the module
+│   └── examples/lxd-ci/           # Working LXD example exercised by CI
+└── tools/
+    └── create_lxd_config.sh       # Helper to extract LXD credentials
 ```
 
 ## Requirements
 
-- Terraform / OpenTofu
+- Terraform / OpenTofu 1.12+
 - [`juju/juju`](https://registry.terraform.io/providers/juju/juju/latest) provider `> 1.3`
-- Juju CLI
+- Juju CLI available on the machine running apply
 
-## Module: `modules/juju_bootstrap`
+## Usage
 
-Bootstraps a Juju controller and, when `controller_num_units > 1`, enables HA.
-
-Inputs and outputs map directly onto the `juju_controller` resource. For the
-authoritative reference, see the upstream docs:
+The module bootstraps a Juju controller and, when `controller_num_units > 1`, enables HA.
+Inputs and outputs map directly onto the `juju_controller` resource. For the authoritative
+reference, see the upstream docs:
 [Bootstrap a controller](https://canonical.com/juju/docs/terraform-provider-juju/2.0/howto/manage-controllers/#bootstrap-a-controller).
 
-### Usage (direct Terraform)
+### Direct Terraform
 
 ```hcl
 locals {
@@ -32,7 +44,7 @@ locals {
 }
 
 module "controller" {
-  source = "./modules/juju_bootstrap"
+  source = "./"
 
   name                 = "ci-lxd-controller"
   controller_num_units = 1
@@ -58,7 +70,87 @@ module "controller" {
 }
 ```
 
-See `modules/juju_bootstrap/variables.tf` and `outputs.tf` for the full input/output set.
+See `variables.tf` and `outputs.tf` for the full input/output set.
+
+### LXD cloud
+
+```hcl
+module "juju_bootstrap_example" {
+  source = "juju/juju-controller/juju"
+
+  name = "my-controller"
+
+  cloud = {
+    auth_types = ["certificate"]
+    name       = "lxd-cloud"
+    type       = "lxd"
+    endpoint   = "https://10.0.0.1:8443"
+    region = {
+      name     = "default"
+      endpoint = "https://10.0.0.1:8443"
+    }
+  }
+
+  cloud_credential = {
+    auth_type = "interactive"
+    name      = "lxd-token"
+    attributes = {
+      trust-token = trimspace(file("/path/to/token"))
+    }
+  }
+
+  controller_num_units = 3
+}
+```
+
+### MAAS cloud
+
+```hcl
+module "juju_bootstrap_example" {
+  source = "juju/juju-controller/juju"
+
+  name = "my-controller"
+
+  cloud = {
+    auth_types = ["oauth1"]
+    type       = "maas"
+    name       = "maas-cloud"
+    endpoint   = "http://10.0.0.1:5240/MAAS/"
+  }
+
+  cloud_credential = {
+    auth_type = "oauth1"
+    name      = "maas-creds"
+    attributes = {
+      maas-oauth = trimspace(file("/path/to/maas_api_key"))
+    }
+  }
+
+  controller_num_units = 3
+}
+```
+
+### Example of controller_model_config or model_default
+
+```
+controller_model_config = {
+  default-base     = "ubuntu@22.04"
+  lxd-snap-channel = "5.0/stable"
+  cloudinit-userdata = <<EOT
+#cloud-config
+
+ca-certs:
+  trusted:
+  - |
+    -----BEGIN CERTIFICATE-----
+    ROOT CA
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    INTERMEDIATE CA
+    -----END CERTIFICATE-----
+EOT
+}
+```
 
 ## Terragrunt unit: `terragrunt/units/juju_bootstrap`
 
@@ -109,3 +201,9 @@ provider, then `apply` and `destroy` the example above.
 
 `controller_num_units > 1` enables HA via a `local-exec` provisioner. Set
 `path_juju_binary` if the Juju CLI is not at the default path.
+
+## Notes
+
+- HA enablement is implemented with `terraform_data` + `local-exec` and Juju CLI commands
+  as opposed to Terraform actions to ensure compatibility with OpenTofu, as actions are
+  not yet supported. See <https://github.com/opentofu/opentofu/issues/3309>.
