@@ -3,7 +3,7 @@ include "root" {
 }
 
 terraform {
-  source = "git::https://github.com/canonical/terraform-provider-juju.git//modules/juju_bootstrap?ref=${values.version}"
+  source = "git::https://github.com/canonical/terraform-juju-controller.git//modules/juju_bootstrap?ref=${values.version}"
 }
 
 dependencies {
