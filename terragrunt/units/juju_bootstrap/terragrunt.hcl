@@ -1,10 +1,5 @@
-include "root" {
-  path = find_in_parent_folders("root.hcl")
-}
-
 terraform {
-  source  = "juju/juju-controller/juju"
-  version = values.version
+  source = try(values.source, "tfr:///juju/controller/juju?version=${values.version}")
 }
 
 dependencies {

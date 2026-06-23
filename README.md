@@ -97,17 +97,43 @@ See `variables.tf` and `outputs.tf` for the full input/output set.
 
 ## Terragrunt unit
 
-The Terragrunt unit is available [here](https://github.com/juju/terraform-juju-controller/tree/main/terragrunt/units/juju_bootstrap).
+The Terragrunt unit is available at [`terragrunt/units/juju_bootstrap`](https://github.com/juju/terraform-juju-controller/tree/main/terragrunt/units/juju_bootstrap). It is designed for use with [Terragrunt stacks](https://docs.terragrunt.com/reference/hcl/blocks/#unit) and reads its configuration from a `values` map provided by the enclosing stack.
+
+Create a `terragrunt.stack.hcl` file that declares the unit and provides `values`:
 
 ```hcl
-terraform {
-  source  = "tfr:///juju/controller/juju?version=0.0.1-rc2"
-}
+unit "controller" {
+  source = "git::https://github.com/juju/terraform-juju-controller.git//terragrunt/units/juju_bootstrap?ref=main"
+  path   = "controller"
 
+  values = {
+    version              = "0.0.1-rc4"
+    name                 = "my-controller"
+    controller_num_units = 1
 
-values = {
-  ...
+    cloud = {
+      name       = "localhost"
+      type       = "lxd"
+      auth_types = ["certificate"]
+    }
+
+    cloud_credential = {
+      name      = "my-credential"
+      auth_type = "certificate"
+      attributes = {
+        server-cert = "..."
+        client-cert = "..."
+        client-key  = "..."
+      }
+    }
+  }
 }
+```
+
+Then generate and apply the stack:
+
+```bash
+terragrunt stack run -- apply
 ```
 
 ## High availability

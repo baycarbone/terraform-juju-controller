@@ -14,9 +14,7 @@ concurrency:
 jobs:
   terragrunt-lxd-bootstrap:
     name: Terragrunt LXD bootstrap
-    runs-on: ubuntu-22.04
-    env:
-      ACTIONS_ALLOW_IPV6: false
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -47,10 +45,47 @@ jobs:
           echo "$HOME/.terragrunt/bin" >> $GITHUB_PATH
 
       - name: Terragrunt apply
-        run: terragrunt apply --auto-approve
+        run: terragrunt stack run --non-interactive -- apply --auto-approve
         working-directory: terragrunt/examples/lxd-ci
 
       - name: Terragrunt destroy
         if: always()
-        run: terragrunt destroy --auto-approve
+        run: terragrunt stack run --non-interactive -- destroy --auto-approve
         working-directory: terragrunt/examples/lxd-ci
+
+  terragrunt-lxd-bootstrap-registry:
+    name: Terragrunt LXD bootstrap (registry)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup LXD and Juju
+        uses: charmed-kubernetes/actions-operator@main
+        with:
+          provider: lxd
+          channel: "6"
+          juju-channel: "3/stable"
+          lxd-channel: "5.21/stable"
+
+      - name: Create LXD credentials file
+        run: ./tools/create_lxd_config.sh
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.*"
+          terraform_wrapper: false
+
+      - name: Install Terragrunt
+        run: |
+          curl -sSfL --proto '=https' --tlsv1.2 https://terragrunt.com/install | bash -s -- -v v1.0.5
+          echo "$HOME/.terragrunt/bin" >> $GITHUB_PATH
+
+      - name: Terragrunt apply
+        run: terragrunt stack run --non-interactive -- apply --auto-approve
+        working-directory: terragrunt/examples/lxd-ci-registry
+
+      - name: Terragrunt destroy
+        if: always()
+        run: terragrunt stack run --non-interactive -- destroy --auto-approve
+        working-directory: terragrunt/examples/lxd-ci-registry

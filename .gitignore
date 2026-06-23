@@ -29,3 +29,4 @@ vendor/
 __debug_bin
 test.env
 /tmp
+.terragrunt-stack
