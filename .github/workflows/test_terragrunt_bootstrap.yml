@@ -50,7 +50,7 @@ jobs:
 
       - name: Terragrunt destroy
         if: always()
-        run: terragrunt stack run --non-interactive -- destroy --auto-approve
+        run: terragrunt stack run --source-update --non-interactive -- destroy --auto-approve
         working-directory: terragrunt/examples/lxd-ci
 
   terragrunt-lxd-bootstrap-registry:
@@ -87,5 +87,5 @@ jobs:
 
       - name: Terragrunt destroy
         if: always()
-        run: terragrunt stack run --non-interactive -- destroy --auto-approve
+        run: terragrunt stack run --source-update --non-interactive -- destroy --auto-approve
         working-directory: terragrunt/examples/lxd-ci-registry
