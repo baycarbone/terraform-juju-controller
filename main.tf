@@ -1,5 +1,6 @@
 provider "juju" {
   controller_mode = true
+  lazy_api_check  = true
 }
 
 resource "juju_controller" "controller" {
