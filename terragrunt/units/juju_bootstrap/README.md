@@ -5,13 +5,13 @@ This unit wraps the root Terraform module for use from a Terragrunt stack.
 Default source: `juju/juju-controller/juju` (Terraform Registry).
 The `examples/lxd-ci` example overrides this with `${get_repo_root()}` for CI testing against the local module.
 
-The enclosing stack is meant to provide a `values` attribute, which is used to populate the module source version, dependencies, required inputs, and any optional inputs.
+The enclosing stack is meant to provide a `values.juju_bootstrap` attribute, which is used to populate the module source version, dependencies, required inputs, and any optional inputs.
 
 ## Expected stack-provided values
 
 Required `values` entries:
 
-- `version`
+- `module_ref`
 - `name`
 - `cloud`
 - `cloud_credential`
@@ -19,6 +19,7 @@ Required `values` entries:
 
 Optional `values` entries:
 
+- `exclude`
 - `dependencies`
 - `path_juju_binary`
 - `agent_version`
@@ -34,8 +35,9 @@ Optional `values` entries:
 
 ## Behavior
 
-- The module source is pinned from `values.version`.
+- The module source is pinned from `values.module_ref`.
 - Terragrunt dependencies are populated from `values.dependencies` when present.
+- The unit is excluded from all Terragrunt actions when `values.exclude` is `true`.
 - Optional module inputs are forwarded only when the corresponding `values` entry is not `null`.
 
 ## Reference

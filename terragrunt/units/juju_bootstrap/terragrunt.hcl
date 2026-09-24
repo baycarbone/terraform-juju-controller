@@ -3,15 +3,21 @@ include "root" {
 }
 
 terraform {
-  source = try(values.source, "tfr:///juju/controller/juju?version=${values.version}")
+  source = coalesce(try(values.module_source, null), try("tfr:///juju/controller/juju?version=${values.module_ref}", null))
 }
 
 dependencies {
   paths = try(values.dependencies, [])
 }
 
-locals {
-  optional_inputs = {
+exclude {
+  if      = try(values.exclude, false)
+  actions = ["all"]
+}
+
+inputs = merge({
+  # Optional inputs
+  for k, v in {
     path_juju_binary        = try(values.path_juju_binary, null)
     agent_version           = try(values.agent_version, null)
     bootstrap_base          = try(values.bootstrap_base, null)
@@ -23,13 +29,7 @@ locals {
     model_constraints       = try(values.model_constraints, null)
     model_default           = try(values.model_default, null)
     storage_pool            = try(values.storage_pool, null)
-  }
-}
-
-inputs = merge({
-  # Optional inputs
-  for k, v in local.optional_inputs :
-  k => v
+  } : k => v
   if v != null
   },
   {
