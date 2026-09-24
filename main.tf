@@ -29,15 +29,16 @@ resource "terraform_data" "juju_enable_ha" {
   provisioner "local-exec" {
     command = <<-EOT
       echo "$JUJU_PASSWORD" | juju login -c "$CONTROLLER_NAME" "$JUJU_CONTROLLER" -u "$JUJU_USERNAME" --trust --no-prompt
-      juju enable-ha -c "$CONTROLLER_NAME" -n "$HA_COUNT"
+      juju enable-ha -c "$CONTROLLER_NAME" -n "$HA_COUNT" $ZONE_CONSTRAINTS
       juju wait-for model "$CONTROLLER_NAME":controller --timeout 3600s --query='forEach(units, unit => (unit.workload-status == "active"))'
     EOT
     environment = {
-      CONTROLLER_NAME = juju_controller.controller.name
-      JUJU_CONTROLLER = juju_controller.controller.api_addresses[0]
-      JUJU_USERNAME   = juju_controller.controller.username
-      JUJU_PASSWORD   = juju_controller.controller.password
-      HA_COUNT        = var.controller_num_units
+      CONTROLLER_NAME  = juju_controller.controller.name
+      JUJU_CONTROLLER  = juju_controller.controller.api_addresses[0]
+      JUJU_USERNAME    = juju_controller.controller.username
+      JUJU_PASSWORD    = juju_controller.controller.password
+      HA_COUNT         = var.controller_num_units
+      ZONE_CONSTRAINTS = can(var.bootstrap_constraints.zones) ? "--constraints=zones=${var.bootstrap_constraints.zones}" : ""
     }
   }
 }
