@@ -8,6 +8,7 @@ output "juju_controller" {
     username             = juju_controller.controller.username
     password             = juju_controller.controller.password
     ca_certificate       = juju_controller.controller.ca_cert
+    lazy_api_check       = false
   }
   sensitive = true
 }
