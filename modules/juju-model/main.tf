@@ -10,6 +10,16 @@ resource "juju_model" "model" {
   name = var.name
 
   cloud {
-    name = var.cloud_name
+    name   = var.cloud_name
+    region = var.region
   }
+
+  credential = var.credential
+  config     = var.config
+}
+
+resource "juju_ssh_key" "model_ssh_key" {
+  count      = var.ssh_key_path != null ? 1 : 0 # if null, it means we are creating a k8s model in which case an ssh key is not needed
+  model_uuid = juju_model.model.uuid
+  payload    = trimspace(file(var.ssh_key_path))
 }

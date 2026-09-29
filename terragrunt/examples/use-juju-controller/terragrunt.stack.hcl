@@ -15,7 +15,6 @@ unit "juju_model" {
   path = "juju-model"
 
   values = {
-    version             = "main"
     module_source       = "${get_repo_root()}/modules/juju-model"
     juju_bootstrap_path = "../controller"
     model_name          = "default-model"
