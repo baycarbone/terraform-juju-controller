@@ -35,9 +35,10 @@ exclude {
 inputs = merge({
   // Optional inputs (only passed if defined in the stacks config)
   for k, v in {
-    region       = try(values.region, null)
-    config       = try(values.config, null)
-    ssh_key_path = try(values.ssh_key_path, null)
+    region        = try(values.region, null)
+    config        = try(values.config, null)
+    ssh_key_path  = try(values.ssh_key_path, null)
+    storage_pools = try(values.storage_pools, null)
   } : k => v
   if v != null
   },
