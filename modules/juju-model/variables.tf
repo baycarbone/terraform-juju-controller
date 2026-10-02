@@ -44,3 +44,13 @@ variable "ssh_key_path" {
   type        = string
   default     = null
 }
+
+variable "storage_pool" {
+  description = "A storage pool to add to the model"
+  type = list(object({
+    name             = string
+    storage_provider = string
+    attributes       = map(string)
+  }))
+  default = null
+}

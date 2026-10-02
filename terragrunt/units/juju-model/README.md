@@ -26,6 +26,7 @@ Optional `values` entries:
 - `credential`
 - `config`
 - `ssh_key_path`
+- `storage_pool`
 
 ## Behavior
 
@@ -34,7 +35,7 @@ Optional `values` entries:
 - Terragrunt dependencies are populated from `values.dependencies` when present.
 - The unit is excluded from all Terragrunt actions when `values.exclude` is `true`.
 - `juju_controller` and `cloud_name` are taken from `values` when set, otherwise they fall back to the `juju_bootstrap` unit's outputs.
-- Optional module inputs (`region`, `credential`, `config`, `ssh_key_path`) are forwarded only when the corresponding `values` entry is not `null`.
+- Optional module inputs (`region`, `credential`, `config`, `ssh_key_path`, `storage_pool`) are forwarded only when the corresponding `values` entry is not `null`.
 
 ## Reference
 

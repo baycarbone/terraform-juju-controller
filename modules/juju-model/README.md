@@ -45,6 +45,7 @@ module "juju_model" {
 | credential | The name of the Juju credential to use for the model. | `string` | `null` | no |
 | config | The configuration for the Juju model. | `map(string)` | `null` | no |
 | ssh_key_path | The path to the SSH key to use for the model. Set to `null` when creating a k8s model, as an SSH key is not needed in that scenario. | `string` | `null` | no |
+| storage_pool | A storage pool to add to the model. | `list(object({ name = string, storage_provider = string, attributes = map(string) }))` | `null` | no |
 
 ## Outputs
 

@@ -18,6 +18,15 @@ resource "juju_model" "model" {
   config     = var.config
 }
 
+resource "juju_storage_pool" "storage_pool" {
+  for_each = { for sp in var.storage_pool : sp.name => sp }
+
+  model_uuid       = juju_model.model.uuid
+  name             = each.value.name
+  storage_provider = each.value.storage_provider
+  attributes       = each.value.attributes
+}
+
 resource "juju_ssh_key" "model_ssh_key" {
   count      = var.ssh_key_path != null ? 1 : 0 # if null, it means we are creating a k8s model in which case an ssh key is not needed
   model_uuid = juju_model.model.uuid

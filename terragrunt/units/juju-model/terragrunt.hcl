@@ -38,6 +38,7 @@ inputs = merge({
     region       = try(values.region, null)
     config       = try(values.config, null)
     ssh_key_path = try(values.ssh_key_path, null)
+    storage_pool = try(values.storage_pool, null)
   } : k => v
   if v != null
   },
