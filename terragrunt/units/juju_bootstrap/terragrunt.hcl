@@ -11,7 +11,7 @@ dependencies {
 }
 
 exclude {
-  if      = try(values.exclude, false)
+  if      = coalesce(try(values.exclude, null), false)
   actions = ["all"]
 }
 
