@@ -23,6 +23,17 @@ dependency "juju_bootstrap" {
   }
 }
 
+dependency "juju_cloud" {
+  config_path = try(values.juju_cloud_path, null)
+
+  mock_outputs_merge_strategy_with_state = "shallow"
+
+  mock_outputs = {
+    name   = "mock-cloud-name"
+    region = "default"
+  }
+}
+
 dependencies {
   paths = try(values.dependencies, [])
 }
@@ -35,18 +46,18 @@ exclude {
 inputs = merge({
   // Optional inputs (only passed if defined in the stacks config)
   for k, v in {
-    region        = try(values.region, null)
     config        = try(values.config, null)
     ssh_key_path  = try(values.ssh_key_path, null)
     storage_pools = try(values.storage_pools, null)
+    region        = try(coalesce(try(values.region, null), try(dependency.juju_cloud.outputs.region, null), try(dependency.juju_bootstrap.outputs.juju_cloud_region, null)), null)
   } : k => v
   if v != null
   },
   {
     // Dependent variables
     juju_controller = coalesce(try(values.juju_controller, null), try(dependency.juju_bootstrap.outputs.juju_controller, null))
-    cloud_name      = coalesce(try(values.cloud_name, null), try(dependency.juju_bootstrap.outputs.juju_cloud, null))
-    credential      = coalesce(try(values.credential, null), try(dependency.juju_bootstrap.outputs.juju_cloud, null))
+    cloud_name      = coalesce(try(values.cloud_name, null), try(dependency.juju_cloud.outputs.name, null), try(dependency.juju_bootstrap.outputs.juju_cloud, null))
+    credential      = coalesce(try(values.credential, null), try(dependency.juju_cloud.outputs.name, null), try(dependency.juju_bootstrap.outputs.juju_cloud, null))
 
     // Required variables
     name = values.model_name
