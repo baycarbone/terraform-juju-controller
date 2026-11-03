@@ -3,7 +3,7 @@ include "root" {
 }
 
 terraform {
-  source = coalesce(try(values.module_source, null), try("git::https://github.com/canonical/terraform-juju-controller.git//modules/juju-model?ref=${values.module_ref}", null))
+  source = coalesce(try(values.module_source, null), try("git::https://github.com/canonical/terraform-juju-controller.git//modules/juju_model?ref=${values.module_ref}", null))
 }
 
 dependency "juju_bootstrap" {

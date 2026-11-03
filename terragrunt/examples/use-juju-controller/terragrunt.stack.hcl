@@ -10,12 +10,12 @@ unit "controller" {
 }
 
 unit "juju_model" {
-  source = "${get_repo_root()}/terragrunt/units/juju-model"
+  source = "${get_repo_root()}/terragrunt/units/juju_model"
 
-  path = "juju-model"
+  path = "juju_model"
 
   values = {
-    module_source       = "${get_repo_root()}/modules/juju-model"
+    module_source       = "${get_repo_root()}/modules/juju_model"
     juju_bootstrap_path = "../controller"
     model_name          = "default-model"
   }

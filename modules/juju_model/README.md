@@ -1,4 +1,4 @@
-# juju-model
+# juju_model
 
 This module creates a Juju model on an existing Juju controller and optionally adds an SSH key to it.
 
@@ -6,7 +6,7 @@ This module creates a Juju model on an existing Juju controller and optionally a
 
 ```hcl
 module "juju_model" {
-  source = "git::https://github.com/canonical/terraform-juju-controller.git//modules/juju-model?ref=<ref>"
+  source = "git::https://github.com/canonical/terraform-juju-controller.git//modules/juju_model?ref=<ref>"
 
   juju_controller = {
     controller_addresses = ["..."]
